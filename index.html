@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#080a0f">
+<title>TPG Racing Online — Prototype</title>
+<style>
+:root{--red:#ff3045;--bg:#080a0f;--panel:rgba(12,16,24,.92);--line:rgba(255,255,255,.13);--text:#f5f7fb;--muted:#a9b3c3}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;touch-action:none}
+button{font:inherit;color:inherit;cursor:pointer;border:1px solid var(--line);border-radius:10px;background:#171d29;padding:12px 16px;font-weight:800}
+button:active{transform:scale(.97)}button.primary{background:var(--red);border-color:var(--red);color:white}
+#game{position:fixed;inset:0}canvas{display:block;width:100%;height:100%}
+#topbar{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;pointer-events:none;background:linear-gradient(#05070bd9,transparent)}
+.brand{font-size:14px;font-weight:1000;letter-spacing:1.5px}.brand span{color:var(--red)}.pill{border:1px solid var(--line);background:#101620d9;border-radius:99px;padding:7px 10px;font-size:11px;color:#e6eaf1}
+#hud{position:fixed;left:14px;bottom:18px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 16px;min-width:142px;pointer-events:none;backdrop-filter:blur(8px)}
+#speed{font-size:40px;line-height:1;font-weight:1000;letter-spacing:-2px}#unit{font-size:10px;color:var(--muted);letter-spacing:2px}#gear{font-size:12px;color:var(--red);margin-top:7px;font-weight:900}
+#status{position:fixed;top:66px;left:50%;transform:translateX(-50%);font-size:12px;background:#080a0fbb;border:1px solid var(--line);padding:7px 11px;border-radius:99px;white-space:nowrap}
+#controls{position:fixed;inset:auto 0 0 0;display:flex;justify-content:space-between;align-items:end;padding:16px;pointer-events:none}
+.pad{display:flex;gap:10px;pointer-events:auto}.control{width:64px;height:64px;border-radius:50%;background:#101722c9;border:1px solid #ffffff40;font-size:23px;display:grid;place-items:center;user-select:none;-webkit-user-select:none;touch-action:none}
+.control.long{width:68px;height:68px;font-size:12px;border-radius:18px}.control.nitro{background:#ff3045d9;border-color:#ff6979}
+#overlay{position:fixed;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(ellipse at 70% 40%,#4d101b80,transparent 55%),#05070bdc;backdrop-filter:blur(7px)}
+.panel{width:min(560px,100%);max-height:92vh;overflow:auto;background:linear-gradient(145deg,#151b27f5,#090c12f5);border:1px solid #ffffff20;border-radius:20px;padding:clamp(20px,5vw,34px);box-shadow:0 24px 100px #0009}
+.eyebrow{font-size:11px;letter-spacing:4px;color:var(--red);font-weight:900}.title{font-size:clamp(36px,9vw,66px);line-height:.93;letter-spacing:-3px;font-weight:1000;margin:15px 0}.title span{color:var(--red)}.sub{color:var(--muted);font-size:14px;line-height:1.6}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.actions button{flex:1;min-width:135px}
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:22px}.feature{background:#ffffff07;border:1px solid var(--line);border-radius:10px;padding:11px;font-size:11px;color:var(--muted)}.feature b{display:block;color:white;font-size:13px;margin-bottom:4px}
+#pause{position:fixed;right:14px;top:66px;z-index:3;padding:8px 11px;font-size:11px}
+#toast{position:fixed;left:50%;bottom:105px;transform:translateX(-50%);background:#111722f2;border:1px solid var(--line);padding:9px 13px;border-radius:10px;font-size:12px;display:none;max-width:90%;text-align:center}
+.smallprint{font-size:11px;color:#8993a4;line-height:1.5;margin-top:18px}
+@media(min-width:800px){#controls{padding:24px 30px}.control{width:70px;height:70px}#hud{left:24px;bottom:24px}#status{top:78px}}
+@media(max-width:420px){.features{grid-template-columns:1fr}.feature{padding:8px}.panel{padding:20px}.control{width:57px;height:57px}.control.long{width:60px;height:60px}}
+</style>
+</head>
+<body>
+<div id="game"></div>
+<div id="topbar"><div class="brand">TAMILAN PRO <span>GAMING</span></div><div class="pill">TPG RACING · PROTOTYPE</div></div>
+<div id="status">READY TO RACE</div>
+<button id="pause">Ⅱ PAUSE</button>
+<div id="hud"><div id="speed">000</div><div id="unit">KM/H</div><div id="gear">GEAR 1 · STREET RUN</div></div>
+<div id="controls">
+  <div class="pad"><button class="control" data-control="left" aria-label="Steer left">◀</button><button class="control" data-control="right" aria-label="Steer right">▶</button></div>
+  <div class="pad"><button class="control long" data-control="brake">BRAKE</button><button class="control long nitro" data-control="nitro">N₂O</button><button class="control long" data-control="gas">GAS ▲</button></div>
+</div>
+<div id="toast"></div>
+<div id="overlay">
+ <div class="panel">
+  <div class="eyebrow">YOUR ROAD. YOUR RULES.</div>
+  <div class="title">TPG<br><span>RACING</span></div>
+  <p class="sub">A lightweight, browser-based 3D street-racing prototype for Tamilan Pro Gaming. Drive a custom car, steer through a night road, use nitro, and test touch controls on your phone.</p>
+  <div class="actions"><button class="primary" id="start">▶ START RACING</button><button id="help">HOW TO PLAY</button></div>
+  <div class="features"><div class="feature"><b>📱 TOUCH</b>Phone controls</div><div class="feature"><b>🏎️ 3D DRIVE</b>Live road scene</div><div class="feature"><b>⚡ NITRO</b>Boost your run</div></div>
+  <p class="smallprint">Prototype build 0.1 · Requires an internet connection to load the Three.js graphics library. This is an original fan-made prototype, not Need for Speed: Most Wanted (2005). Online multiplayer, the full city, car selection, and licensed game content are not implemented yet.</p>
+ </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const gameEl = $('game'), overlay = $('overlay'), speedEl = $('speed'), statusEl = $('status'), toastEl = $('toast');
+  if (!window.THREE) {
+    statusEl.textContent = '3D LIBRARY FAILED TO LOAD — CHECK INTERNET';
+    $('start').disabled = true;
+    return;
+  }
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x080b13);
+  scene.fog = new THREE.Fog(0x080b13, 30, 190);
+  const camera = new THREE.PerspectiveCamera(65, innerWidth/innerHeight, .1, 400);
+  camera.position.set(0,5,10);
+  const renderer = new THREE.WebGLRenderer({antialias:false, powerPreference:'high-performance'});
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.6));
+  renderer.setSize(innerWidth,innerHeight);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  gameEl.appendChild(renderer.domElement);
+
+  scene.add(new THREE.HemisphereLight(0x9cbcff,0x17121b,2.1));
+  const moon = new THREE.DirectionalLight(0xffd9c0,2.1); moon.position.set(-5,12,5); scene.add(moon);
+
+  const mat = (color, roughness=.8, metalness=0) => new THREE.MeshStandardMaterial({color,roughness,metalness});
+  const roadMat=mat(0x222733), lineMat=mat(0xf2e8d3), darkMat=mat(0x10141d), redMat=mat(0xff243d,.35,.55), glassMat=mat(0x172e43,.22,.4), tireMat=mat(0x090a0d), lampMat=new THREE.MeshBasicMaterial({color:0xff3b50});
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(400,400),mat(0x101820));ground.rotation.x=-Math.PI/2;ground.position.y=-.13;scene.add(ground);
+
+  // Road is laid along the Z axis. Repeating segments scroll to simulate forward driving.
+  const road = new THREE.Mesh(new THREE.PlaneGeometry(13,240),roadMat);road.rotation.x=-Math.PI/2;road.position.set(0,-.08,-80);scene.add(road);
+  const edgeLines=[];
+  for(let side of [-1,1]){
+    const line=new THREE.Mesh(new THREE.BoxGeometry(.13,.025,240),lineMat);line.position.set(side*5.85,-.045,-80);scene.add(line);
+    const curb=new THREE.Mesh(new THREE.BoxGeometry(.28,.07,240),mat(0x6c2330));curb.position.set(side*6.6,-.03,-80);scene.add(curb);
+  }
+  const dashes=[];
+  for(let i=0;i<34;i++){
+    const dash=new THREE.Mesh(new THREE.BoxGeometry(.12,.025,2.2),lineMat);
+    dash.position.set(0,-.035,-i*7);scene.add(dash);dashes.push(dash);
+  }
+
+  // Stylized, original low-poly car (not a copied game model).
+  const car = new THREE.Group();scene.add(car);
+  const body = new THREE.Mesh(new THREE.BoxGeometry(1.8,.52,3.6),redMat);body.position.y=.72;car.add(body);
+  const hood = new THREE.Mesh(new THREE.BoxGeometry(1.68,.16,1.0),redMat);hood.position.set(0,.98,-1.05);car.add(hood);
+  const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.28,.57,1.55),glassMat);cabin.position.set(0,1.16,.15);car.add(cabin);
+  const roof = new THREE.Mesh(new THREE.BoxGeometry(1.1,.09,.95),darkMat);roof.position.set(0,1.47,.12);car.add(roof);
+  const frontBar=new THREE.Mesh(new THREE.BoxGeometry(1.3,.12,.12),mat(0xfff2cf));frontBar.position.set(0,.68,-1.83);car.add(frontBar);
+  for(const x of [-.62,.62]){
+    const tail=new THREE.Mesh(new THREE.BoxGeometry(.3,.15,.07),lampMat);tail.position.set(x,.76,1.83);car.add(tail);
+  }
+  const wheels=[];
+  for(const x of [-.94,.94])for(const z of [-1.15,1.15]){
+    const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.36,.36,.22,10),tireMat);
+    wheel.rotation.z=Math.PI/2;wheel.position.set(x,.43,z);car.add(wheel);wheels.push(wheel);
+  }
+  const glow = new THREE.PointLight(0xff263d,1.8,5);glow.position.set(0,.8,2);car.add(glow);
+  car.position.set(0,0,2);
+
+  // Buildings, lamps and trees form a lightweight repeating streetscape.
+  const scenery=[];
+  const buildingMats=[mat(0x202839),mat(0x2a1d2b),mat(0x1a2930),mat(0x30313d)];
+  for(let i=0;i<42;i++){
+    const side=i%2?1:-1, z=-i*8-5, h=4+Math.random()*17, w=2.4+Math.random()*4;
+    const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,3+Math.random()*4),buildingMats[i%buildingMats.length]);
+    b.position.set(side*(9+w/2+Math.random()*4),h/2-.1,z);scene.add(b);scenery.push({mesh:b,z,side,kind:'building'});
+    // Tiny glowing windows
+    for(let j=0;j<3;j++){
+      const win=new THREE.Mesh(new THREE.BoxGeometry(.16,.25,.025),new THREE.MeshBasicMaterial({color:[0xffb45c,0x70bfff,0xff4356][(i+j)%3]}));
+      win.position.set(b.position.x+(Math.random()-.5)*w*.65,h*(.25+Math.random()*.55),z+2.01);
+      scene.add(win);scenery.push({mesh:win,z,side,kind:'window'});
+    }
+  }
+  const lamps=[];
+  for(let i=0;i<24;i++){
+    const side=i%2?1:-1,z=-i*14-8;
+    const pole=new THREE.Mesh(new THREE.CylinderGeometry(.045,.07,4.8,5),darkMat);pole.position.set(side*7.3,2.4,z);scene.add(pole);
+    const arm=new THREE.Mesh(new THREE.BoxGeometry(.8,.07,.07),darkMat);arm.position.set(side*6.95,4.65,z);scene.add(arm);
+    const bulb=new THREE.Mesh(new THREE.SphereGeometry(.14,6,5),new THREE.MeshBasicMaterial({color:0xffd5a1}));bulb.position.set(side*6.65,4.6,z);scene.add(bulb);
+    const light=new THREE.PointLight(0xffc47b,.7,12);light.position.copy(bulb.position);scene.add(light);
+    lamps.push({pole,arm,bulb,light,z,side});
+  }
+
+  const input={left:false,right:false,gas:false,brake:false,nitro:false};
+  let started=false,paused=false,speed=0,offset=0,steer=0,nitroFuel=100,toastTimer=0;
+  const showToast = msg => {toastEl.textContent=msg;toastEl.style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>toastEl.style.display='none',2600);};
+  const startGame=()=>{started=true;paused=false;overlay.style.display='none';statusEl.textContent='STREET RUN · FREE DRIVE';showToast('Drive with touch buttons or WASD / arrow keys.');};
+  $('start').addEventListener('click',startGame);
+  $('help').addEventListener('click',()=>showToast('Hold GAS to accelerate. Use ◀ ▶ to steer, BRAKE to slow down, and N₂O for a boost.'));
+  $('pause').addEventListener('click',()=>{if(!started)return;paused=!paused;statusEl.textContent=paused?'PAUSED':'STREET RUN · FREE DRIVE';$('pause').textContent=paused?'▶ RESUME':'Ⅱ PAUSE';if(paused)showToast('Race paused. Tap Resume to continue.');});
+  document.querySelectorAll('[data-control]').forEach(btn=>{
+    const key=btn.dataset.control;
+    const down=e=>{e.preventDefault();input[key]=true;try{btn.setPointerCapture(e.pointerId)}catch(_){}};
+    const up=e=>{e.preventDefault();input[key]=false;};
+    btn.addEventListener('pointerdown',down);btn.addEventListener('pointerup',up);btn.addEventListener('pointercancel',up);btn.addEventListener('lostpointercapture',()=>input[key]=false);
+  });
+  addEventListener('keydown',e=>{
+    const map={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'gas',KeyW:'gas',ArrowDown:'brake',KeyS:'brake',ShiftLeft:'nitro',ShiftRight:'nitro'};
+    if(map[e.code]){input[map[e.code]]=true;e.preventDefault();}
+    if(e.code==='Escape'&&started){paused=!paused;statusEl.textContent=paused?'PAUSED':'STREET RUN · FREE DRIVE';}
+  });
+  addEventListener('keyup',e=>{
+    const map={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'gas',KeyW:'gas',ArrowDown:'brake',KeyS:'brake',ShiftLeft:'nitro',ShiftRight:'nitro'};
+    if(map[e.code])input[map[e.code]]=false;
+  });
+  addEventListener('blur',()=>Object.keys(input).forEach(k=>input[k]=false));
+
+  let last=performance.now();
+  function animate(now){
+    requestAnimationFrame(animate);
+    const dt=Math.min((now-last)/1000,.04);last=now;
+    if(started&&!paused){
+      const boosting=input.nitro&&nitroFuel>0&&speed>12;
+      const maxSpeed=boosting?67:48;
+      if(input.gas)speed+=26*dt;else speed-=8*dt;
+      if(input.brake)speed-=38*dt;
+      if(boosting){speed+=20*dt;nitroFuel=Math.max(0,nitroFuel-24*dt);}else nitroFuel=Math.min(100,nitroFuel+5*dt);
+      speed=THREE.MathUtils.clamp(speed,0,maxSpeed);
+      const steerInput=(input.left?-1:0)+(input.right?1:0);
+      steer=THREE.MathUtils.damp(steer,steerInput,5,dt);
+      car.position.x+=steer*dt*(2.2+speed*.075);
+      car.position.x=THREE.MathUtils.clamp(car.position.x,-4.8,4.8);
+      car.rotation.z=THREE.MathUtils.damp(car.rotation.z,-steer*.09,7,dt);
+      const travel=speed*dt*.72;offset+=travel;
+      for(const dash of dashes){dash.position.z+=travel;if(dash.position.z>5)dash.position.z-=238;}
+      for(const item of scenery){item.mesh.position.z+=travel;if(item.mesh.position.z>8)item.mesh.position.z-=336;}
+      for(const l of lamps){l.pole.position.z+=travel;l.arm.position.z+=travel;l.bulb.position.z+=travel;l.light.position.z+=travel;if(l.pole.position.z>8){const dz=-336;l.pole.position.z+=dz;l.arm.position.z+=dz;l.bulb.position.z+=dz;l.light.position.z+=dz;}}
+      wheels.forEach(w=>w.rotation.x-=speed*dt*.45);
+      glow.intensity=boosting?4:1.5;
+      statusEl.textContent=boosting?'NITRO BOOST ACTIVE':(Math.abs(car.position.x)>4.4?'WATCH THE EDGE':'STREET RUN · FREE DRIVE');
+    }
+    camera.position.x=THREE.MathUtils.damp(camera.position.x,car.position.x*.65,3,dt);
+    camera.position.y=THREE.MathUtils.damp(camera.position.y,4.4,2,dt);
+    camera.position.z=THREE.MathUtils.damp(camera.position.z,car.position.z+8.8,3,dt);
+    camera.lookAt(car.position.x*.55,1,-5);
+    speedEl.textContent=String(Math.round(speed*3.6)).padStart(3,'0');
+    $('gear').textContent='GEAR '+(speed<8?1:speed<18?2:speed<30?3:speed<43?4:5)+' · N₂O '+Math.round(nitroFuel)+'%';
+    renderer.render(scene,camera);
+  }
+  requestAnimationFrame(animate);
+  addEventListener('resize',()=>{
+    camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
+    renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.setSize(innerWidth,innerHeight);
+  });
+})();
+</script>
+</body>
+</html>
