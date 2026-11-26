@@ -3,52 +3,461 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TPG - NFS Most Wanted 2005</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#08090d">
+
+<title>TPG | MOST WANTED</title>
+
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@400;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --red: #ff1838;
+    --orange: #ff7138;
+    --dark: #08090d;
+}
+
 body {
-  margin: 0;
-  background: #090909;
-  color: white;
-  font-family: Arial, sans-serif;
-  text-align: center;
+    background: var(--dark);
+    color: white;
+    font-family: 'Rajdhani', sans-serif;
+    overflow-x: hidden;
 }
-.container {
-  padding: 60px 20px;
+
+/* CINEMATIC BACKGROUND */
+
+.background {
+    position: fixed;
+    inset: 0;
+    z-index: -3;
+
+    background:
+      linear-gradient(90deg, #08090df5, #08090d80, #08090de8),
+      linear-gradient(0deg, #08090d, transparent 65%),
+      url("https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=2000&q=85");
+
+    background-size: cover;
+    background-position: center;
+    animation: backgroundMove 25s infinite alternate ease-in-out;
 }
+
+@keyframes backgroundMove {
+    from { transform: scale(1); }
+    to { transform: scale(1.12); }
+}
+
+/* LIGHT EFFECTS */
+
+.glow {
+    position: fixed;
+    width: 350px;
+    height: 350px;
+    background: var(--red);
+    filter: blur(180px);
+    opacity: .17;
+    z-index: -2;
+    animation: glowMove 8s infinite alternate;
+}
+
+.glow.one {
+    top: 10%;
+    left: -150px;
+}
+
+.glow.two {
+    bottom: -150px;
+    right: -100px;
+    background: #ff6b24;
+}
+
+@keyframes glowMove {
+    from { transform: translate(0,0); }
+    to { transform: translate(100px,-70px); }
+}
+
+/* NAVIGATION */
+
+nav {
+    height: 85px;
+    padding: 0 7%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #ffffff20;
+    background: #08090d65;
+    backdrop-filter: blur(15px);
+}
+
+.logo {
+    font-family: Orbitron, sans-serif;
+    font-size: 23px;
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+.logo span {
+    color: var(--red);
+}
+
+.nav-status {
+    color: #aaa;
+    font-size: 14px;
+    letter-spacing: 3px;
+}
+
+/* HERO */
+
+.hero {
+    min-height: 82vh;
+    padding: 70px 8%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+}
+
+.tag {
+    color: var(--red);
+    font-family: Orbitron, sans-serif;
+    font-size: 12px;
+    letter-spacing: 5px;
+    animation: fadeUp 1s both;
+}
+
 h1 {
-  color: #ff3030;
-  font-size: 42px;
+    font-family: Orbitron, sans-serif;
+    font-size: clamp(45px, 8vw, 105px);
+    font-weight: 900;
+    line-height: .98;
+    margin: 25px 0;
+    animation: fadeUp 1.2s both;
 }
-button {
-  background: #e21b2d;
-  color: white;
-  border: 0;
-  padding: 18px 30px;
-  font-size: 18px;
-  font-weight: bold;
-  border-radius: 8px;
-  cursor: pointer;
+
+h1 span {
+    color: var(--red);
+    text-shadow: 0 0 35px #ff183866;
 }
-button:hover {
-  background: #ff4757;
+
+.subtitle {
+    font-size: 22px;
+    color: #c4c4c4;
+    letter-spacing: 2px;
+    animation: fadeUp 1.5s both;
 }
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* PLAY BUTTON */
+
+.buttons {
+    margin-top: 40px;
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    animation: fadeUp 1.8s both;
+}
+
+.play {
+    position: relative;
+    padding: 19px 42px;
+    background: linear-gradient(110deg, #ff1838, #ff5938);
+    color: white;
+    border: 0;
+    border-radius: 5px;
+    font-family: Orbitron, sans-serif;
+    font-weight: 900;
+    letter-spacing: 2px;
+    font-size: 15px;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: 0 0 35px #ff183855;
+    transition: .3s;
+}
+
+.play:hover {
+    transform: translateY(-5px) scale(1.04);
+    box-shadow: 0 0 55px #ff183899;
+}
+
+.play::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: #ffffff55;
+    transform: skewX(-25deg);
+    transition: .6s;
+}
+
+.play:hover::after {
+    left: 150%;
+}
+
+.secondary {
+    padding: 19px 30px;
+    border: 1px solid #ffffff55;
+    background: #ffffff0c;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    transition: .3s;
+}
+
+.secondary:hover {
+    border-color: var(--red);
+    background: #ff183820;
+}
+
+/* GAME INFORMATION */
+
+.info {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 35px 8%;
+}
+
+.info-card {
+    padding: 25px;
+    border: 1px solid #ffffff20;
+    background: #ffffff09;
+    backdrop-filter: blur(15px);
+    border-radius: 12px;
+    transition: .3s;
+}
+
+.info-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--red);
+    background: #ff183812;
+}
+
+.info-card h2 {
+    font-family: Orbitron, sans-serif;
+    color: var(--red);
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.info-card p {
+    color: #aaa;
+    font-size: 17px;
+}
+
+/* SPEEDOMETER */
+
+.speed-area {
+    position: fixed;
+    bottom: 25px;
+    right: 35px;
+    text-align: right;
+    opacity: .7;
+}
+
+.speed {
+    font-family: Orbitron, sans-serif;
+    font-size: 42px;
+    font-weight: 900;
+}
+
+.speed small {
+    color: var(--red);
+    font-size: 12px;
+}
+
+.speed-label {
+    font-size: 12px;
+    letter-spacing: 4px;
+    color: #aaa;
+}
+
+/* FOOTER */
+
+footer {
+    padding: 30px;
+    text-align: center;
+    border-top: 1px solid #ffffff15;
+    color: #777;
+    letter-spacing: 2px;
+}
+
+/* MOBILE */
+
+@media(max-width:700px) {
+    nav {
+        padding: 0 5%;
+        height: 70px;
+    }
+
+    .logo {
+        font-size: 17px;
+    }
+
+    .nav-status {
+        font-size: 9px;
+    }
+
+    .hero {
+        min-height: 75vh;
+        padding: 60px 7%;
+    }
+
+    .subtitle {
+        font-size: 17px;
+    }
+
+    .info {
+        grid-template-columns: 1fr;
+        padding: 20px 7%;
+    }
+
+    .buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .speed-area {
+        display: none;
+    }
+}
+
 </style>
 </head>
-<body>
-<div class="container">
-  <h1>TPG RACING HUB</h1>
-  <h2>NEED FOR SPEED</h2>
-  <h3>MOST WANTED 2005</h3>
-  <p>Welcome to Rockport City.</p>
 
-  <button onclick="window.open(
-    'https://web.nfsmwo.com/',
-    '_blank',
-    'noopener'
-  )">
-    PLAY NOW
-  </button>
+<body>
+
+<div class="background"></div>
+<div class="glow one"></div>
+<div class="glow two"></div>
+
+<nav>
+    <div class="logo">TPG<span>.</span> RACING</div>
+    <div class="nav-status">ROCKPORT CITY // 2005</div>
+</nav>
+
+<section class="hero">
+
+    <div class="tag">TAMILAN PRO GAMING PRESENTS</div>
+
+    <h1>
+        NEED FOR<br>
+        SPEED <span>MOST<br>WANTED</span>
+    </h1>
+
+    <p class="subtitle">
+        RULE THE STREETS. ESCAPE THE POLICE.
+        BECOME THE MOST WANTED.
+    </p>
+
+    <div class="buttons">
+
+        <button class="play" onclick="startGame()">
+            ▶ PLAY NOW
+        </button>
+
+        <a class="secondary"
+           href="https://gamer2011pro.github.io/main-page/">
+           TPG HOME
+        </a>
+
+    </div>
+
+</section>
+
+<section class="info">
+
+    <div class="info-card">
+        <h2>01 / BLACKLIST</h2>
+        <p>Challenge rivals and climb the racing rankings.</p>
+    </div>
+
+    <div class="info-card">
+        <h2>02 / PURSUIT</h2>
+        <p>Experience intense police pursuit challenges.</p>
+    </div>
+
+    <div class="info-card">
+        <h2>03 / ROCKPORT</h2>
+        <p>Enter the streets and start your racing journey.</p>
+    </div>
+
+</section>
+
+<div class="speed-area">
+    <div class="speed">
+        <span id="speed">000</span>
+        <small>KM/H</small>
+    </div>
+    <div class="speed-label">ENGINE READY</div>
 </div>
+
+<footer>
+    TPG RACING HUB © 2026<br>
+    UNLEASH YOUR INNER RACER
+</footer>
+
+<script>
+
+function startGame() {
+
+    const button = document.querySelector(".play");
+
+    button.innerHTML = "LOADING...";
+
+    button.style.opacity = ".7";
+
+    setTimeout(() => {
+
+        window.open(
+            "https://web.nfsmwo.com/",
+            "_blank",
+            "noopener,noreferrer"
+        );
+
+        button.innerHTML = "▶ PLAY NOW";
+        button.style.opacity = "1";
+
+    }, 800);
+
+}
+
+/* DECORATIVE SPEED ANIMATION */
+
+let speed = 0;
+let direction = 1;
+
+setInterval(() => {
+
+    speed += direction * 4;
+
+    if (speed >= 320) direction = -1;
+    if (speed <= 0) direction = 1;
+
+    document.getElementById("speed").textContent =
+        String(speed).padStart(3, "0");
+
+}, 45);
+
+</script>
+
 </body>
 </html>
